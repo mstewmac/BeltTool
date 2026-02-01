@@ -170,23 +170,36 @@ export default function App() {
       <main className={s.main}>
         <div className={s.leftCol}>
           <BeltPreview design={design} />
-          <PriceDisplay design={design} />
-          <button
-            className={s.generateBtn}
-            onClick={handleGeneratePDF}
-            disabled={!canGenerate}
-          >
-            {canGenerate ? 'Generate Order PDF' : 'Enter customer name to generate PDF'}
-          </button>
-          <button className={s.resetBtn} onClick={handleReset}>
-            Reset All
-          </button>
+          <div className={s.desktopActions}>
+            <PriceDisplay design={design} />
+            <button
+              className={s.generateBtn}
+              onClick={handleGeneratePDF}
+              disabled={!canGenerate}
+            >
+              {canGenerate ? 'Generate Order PDF' : 'Enter customer name to generate PDF'}
+            </button>
+            <button className={s.resetBtn} onClick={handleReset}>
+              Reset All
+            </button>
+          </div>
         </div>
 
         <div className={s.rightCol}>
           <DesignControls design={design} onChange={setDesign} />
         </div>
       </main>
+
+      <div className={s.bottomBar}>
+        <PriceDisplay design={design} />
+        <button
+          className={s.generateBtn}
+          onClick={handleGeneratePDF}
+          disabled={!canGenerate}
+        >
+          {canGenerate ? 'Generate Order PDF' : 'Enter customer name'}
+        </button>
+      </div>
 
       <OrderHistory
         open={historyOpen}

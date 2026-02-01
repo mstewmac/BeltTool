@@ -299,6 +299,17 @@
   to { opacity: 0; }
 }
 
+/* Bottom sticky bar — hidden on desktop, shown on mobile */
+.bottomBar {
+  display: none;
+}
+
+.desktopActions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .heroInner {
@@ -314,10 +325,31 @@
     grid-template-columns: 1fr;
     padding: 1rem;
     gap: 1rem;
+    padding-bottom: 7rem;
   }
 
   .rightCol {
     max-height: none;
     overflow: visible;
+  }
+
+  .desktopActions {
+    display: none;
+  }
+
+  .bottomBar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-top: 1px solid #e0e0e0;
+    padding: 0.75rem 1rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
   }
 }
