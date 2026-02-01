@@ -37,8 +37,10 @@ export default function BeltPreview({ design }: Props) {
   const beltX = 10;
   const beltW = viewW - 50;
 
-  // End shape area width (proportional to belt height, matching SVG aspect ~105:78)
-  const tipW = beltH * (105 / 78);
+  // SVG paths span y≈1..77 (76 units of content) in a 105-wide viewBox
+  const tipW = beltH * (105 / 76);
+  const svgScaleY = beltH / 76;
+  const svgOffsetY = -1 * svgScaleY; // paths start at y≈1, shift up
 
   // Hole positions
   const holeScale = beltW / totalLength;
@@ -99,7 +101,7 @@ export default function BeltPreview({ design }: Props) {
               {/* Clip path for the end shape */}
               <clipPath id="beltClip">
                 {/* End shape area */}
-                <g transform={`translate(${beltX}, ${beltY}) scale(${tipW / 105}, ${beltH / 78})`}>
+                <g transform={`translate(${beltX}, ${beltY + svgOffsetY}) scale(${tipW / 105}, ${svgScaleY})`}>
                   <path d={END_SHAPE_PATHS[design.endShape]} />
                 </g>
                 {/* Body rectangle extending from end shape to belt end */}
@@ -110,7 +112,7 @@ export default function BeltPreview({ design }: Props) {
             {/* Belt body: end shape filled with texture */}
             <g filter="url(#beltShadow)">
               {/* Tip area — path filled with texture */}
-              <g transform={`translate(${beltX}, ${beltY}) scale(${tipW / 105}, ${beltH / 78})`}>
+              <g transform={`translate(${beltX}, ${beltY + svgOffsetY}) scale(${tipW / 105}, ${svgScaleY})`}>
                 <path
                   d={END_SHAPE_PATHS[design.endShape]}
                   fill={color.image ? `url(#${patternId})` : 'url(#beltGradFallback)'}
@@ -127,7 +129,7 @@ export default function BeltPreview({ design }: Props) {
             </g>
 
             {/* Outline: tip contour (no right edge) flowing into body edges */}
-            <g transform={`translate(${beltX}, ${beltY}) scale(${tipW / 105}, ${beltH / 78})`}>
+            <g transform={`translate(${beltX}, ${beltY + svgOffsetY}) scale(${tipW / 105}, ${svgScaleY})`}>
               <path
                 d={END_SHAPE_OUTLINE_PATHS[design.endShape]}
                 fill="none"

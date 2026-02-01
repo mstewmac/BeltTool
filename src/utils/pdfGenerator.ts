@@ -332,7 +332,7 @@ function drawPage1(
   const beltDrawH = 0.6;
   const beltDrawX = margin;
 
-  // Draw the belt body fill
+  // Draw the belt body as one seamless piece
   doc.setFillColor(
     parseInt(color.hex.slice(1, 3), 16),
     parseInt(color.hex.slice(3, 5), 16),
@@ -341,13 +341,16 @@ function drawPage1(
   doc.setDrawColor(0);
   doc.setLineWidth(0.01);
 
-  // Draw end shape using SVG path
-  const shapeRightX = drawEndShapeOnPDF(
-    doc, order.design.endShape, beltDrawX, beltDrawY, beltDrawH, 'F',
-  );
+  const p1ShapeW = 105 * (beltDrawH / SVG_CONTENT_H);
 
-  // Body rectangle from shape right edge to belt end
-  doc.rect(shapeRightX - 0.02, beltDrawY, beltDrawX + illustW - shapeRightX + 0.02, beltDrawH, 'FD');
+  // Fill end shape + body rectangle (no strokes yet)
+  drawEndShapeOnPDF(doc, order.design.endShape, beltDrawX, beltDrawY, beltDrawH, 'F');
+  doc.rect(beltDrawX + p1ShapeW - 0.02, beltDrawY, beltDrawX + illustW - (beltDrawX + p1ShapeW) + 0.02, beltDrawH, 'F');
+
+  // Stroke: tip contour (open) + body top/bottom edges
+  drawEndShapeOnPDF(doc, order.design.endShape, beltDrawX, beltDrawY, beltDrawH, 'S', true);
+  doc.line(beltDrawX + p1ShapeW, beltDrawY, beltDrawX + illustW, beltDrawY);
+  doc.line(beltDrawX + p1ShapeW, beltDrawY + beltDrawH, beltDrawX + illustW, beltDrawY + beltDrawH);
 
   // Buckle at right end
   const buckleDrawX = beltDrawX + illustW;
