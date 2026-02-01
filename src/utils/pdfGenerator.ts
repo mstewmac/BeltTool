@@ -432,8 +432,6 @@ function drawPage2(
   const pageH = 11;
   const margin = 0.75;
   const beltWidth = order.design.width;
-  const scale = beltWidth / SVG_VIEW_H;
-  const shapeExtent = 105 * scale; // how far the end shape extends in inches
 
   // Header
   doc.setFontSize(12);
