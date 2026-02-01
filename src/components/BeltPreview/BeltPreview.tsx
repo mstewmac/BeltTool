@@ -107,17 +107,23 @@ export default function BeltPreview({ design }: Props) {
               </clipPath>
             </defs>
 
-            {/* Belt body with leather texture, clipped to unified shape */}
+            {/* Belt body: end shape filled with texture */}
             <g filter="url(#beltShadow)">
-              <g clipPath="url(#beltClip)">
-                <rect
-                  x={beltX}
-                  y={beltY}
-                  width={beltW}
-                  height={beltH}
+              {/* Tip area — path filled with texture */}
+              <g transform={`translate(${beltX}, ${beltY}) scale(${tipW / 105}, ${beltH / 78})`}>
+                <path
+                  d={END_SHAPE_PATHS[design.endShape]}
                   fill={color.image ? `url(#${patternId})` : 'url(#beltGradFallback)'}
                 />
               </g>
+              {/* Body rectangle filled with texture */}
+              <rect
+                x={beltX + tipW - 1}
+                y={beltY}
+                width={beltW - tipW + 1}
+                height={beltH}
+                fill={color.image ? `url(#${patternId})` : 'url(#beltGradFallback)'}
+              />
             </g>
 
             {/* Outline: tip contour (no right edge) flowing into body edges */}

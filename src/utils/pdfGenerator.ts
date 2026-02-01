@@ -30,7 +30,11 @@ const END_SHAPE_OUTLINE_PATHS: Record<string, string> = {
   spear: 'M104.16,76.02h-33.6c-6.8,0-13.56-.95-20.09-2.83l-8.69-2.51C30.97,67.57,1.03,52.37,1,41.5c0-3,1.44-6.49,3.85-8.83C21.78,16.21,42.71,5.78,66.14,1.88l38.03-.86',
 };
 
-const SVG_VIEW_H = 78;
+// The SVG paths span y≈1 to y≈77 within a 78-unit viewBox.
+// Use the actual content height (76) for scaling so shapes fill the full belt width.
+const SVG_CONTENT_H = 76;
+// Y offset: paths start at y≈1, so shift up by 1 scaled unit
+const SVG_Y_OFFSET = 1;
 
 // ================================================================
 // SVG PATH PARSER FOR jsPDF
@@ -166,8 +170,9 @@ function drawEndShapeOnPDF(
   const pathData = outline ? END_SHAPE_OUTLINE_PATHS[shape] : END_SHAPE_PATHS[shape];
   if (!pathData) return x;
 
-  const scale = beltWidth / SVG_VIEW_H;
-  const path = parseSVGPathForPDF(pathData, scale, x, y);
+  const scale = beltWidth / SVG_CONTENT_H;
+  const yOffset = y - SVG_Y_OFFSET * scale;
+  const path = parseSVGPathForPDF(pathData, scale, x, yOffset);
 
   if (path.segments.length < 2) return x;
 
@@ -188,10 +193,11 @@ function drawEndShapeMirroredOnPDF(
   const pathData = outline ? END_SHAPE_OUTLINE_PATHS[shape] : END_SHAPE_PATHS[shape];
   if (!pathData) return rightEdgeX;
 
-  const scale = beltWidth / SVG_VIEW_H;
+  const scale = beltWidth / SVG_CONTENT_H;
   const shapeWidth = 105 * scale;
+  const yOffset = y - SVG_Y_OFFSET * scale;
 
-  const path = parseSVGPathForPDF(pathData, scale, 0, y);
+  const path = parseSVGPathForPDF(pathData, scale, 0, yOffset);
   if (path.segments.length < 2) return rightEdgeX;
 
   const mirroredStartX = rightEdgeX - path.startX;
@@ -501,7 +507,7 @@ function drawPage2(
   doc.setFillColor(245, 242, 235);
   doc.setDrawColor(0);
   doc.setLineWidth(0.02);
-  const shapeW = 105 * (beltWidth / SVG_VIEW_H);
+  const shapeW = 105 * (beltWidth / SVG_CONTENT_H);
   const bodyEndX = tAX + tipTemplateLen;
 
   // Fill the entire area (shape + body) without internal edges
@@ -585,7 +591,7 @@ function drawPage2(
     doc.setFillColor(245, 242, 235);
     doc.setDrawColor(0);
     doc.setLineWidth(0.02);
-    const tBShapeW = 105 * (beltWidth / SVG_VIEW_H);
+    const tBShapeW = 105 * (beltWidth / SVG_CONTENT_H);
 
     if (isIntegrated) {
       // Fill: full rectangle + right end shape
