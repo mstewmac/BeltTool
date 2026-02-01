@@ -148,7 +148,7 @@ function parseSVGPathForPDF(
  */
 function drawEndShapeOnPDF(
   doc: jsPDF, shape: string, x: number, y: number,
-  beltWidth: number, style: string = 'FD',
+  beltWidth: number, style: string = 'FD', closed: boolean = true,
 ): number {
   const pathData = END_SHAPE_PATHS[shape];
   if (!pathData) return x;
@@ -158,7 +158,7 @@ function drawEndShapeOnPDF(
 
   if (path.segments.length < 2) return x;
 
-  doc.lines(path.segments, path.startX, path.startY, [1, 1], style, true);
+  doc.lines(path.segments, path.startX, path.startY, [1, 1], style, closed);
 
   // Calculate rightmost x from the path
   const shapeWidth = 105 * scale;
@@ -172,7 +172,7 @@ function drawEndShapeOnPDF(
  */
 function drawEndShapeMirroredOnPDF(
   doc: jsPDF, shape: string, rightEdgeX: number, y: number,
-  beltWidth: number, style: string = 'FD',
+  beltWidth: number, style: string = 'FD', closed: boolean = true,
 ): number {
   const pathData = END_SHAPE_PATHS[shape];
   if (!pathData) return rightEdgeX;
@@ -193,7 +193,7 @@ function drawEndShapeMirroredOnPDF(
     return [-seg[0], seg[1], -seg[2], seg[3], -seg[4], seg[5]] as Seg;
   });
 
-  doc.lines(mirroredSegs, mirroredStartX, path.startY, [1, 1], style, true);
+  doc.lines(mirroredSegs, mirroredStartX, path.startY, [1, 1], style, closed);
 
   return rightEdgeX - shapeWidth;
 }
@@ -489,25 +489,26 @@ function drawPage2(
   const holeEndFromTip = BELT_SPECS.firstHoleFromTip + (BELT_SPECS.holeCount - 1) * BELT_SPECS.holeSpacing;
   const tipTemplateLen = holeEndFromTip + 2;
 
-  // Body rectangle first (fill only, no stroke on left edge)
+  // Draw unified belt shape: end shape + body as one piece
   doc.setFillColor(245, 242, 235);
   doc.setDrawColor(0);
   doc.setLineWidth(0.02);
   const shapeW = 105 * (beltWidth / SVG_VIEW_H);
-  const bodyStartX = tAX + shapeW - 0.03;
   const bodyEndX = tAX + tipTemplateLen;
-  // Fill the body area
-  doc.rect(bodyStartX, tAY, bodyEndX - bodyStartX, beltWidth, 'F');
-  // Stroke only top, bottom, and right edges (no left edge — seamless with tip shape)
-  doc.line(bodyStartX, tAY, bodyEndX, tAY); // top
-  doc.line(bodyStartX, tAY + beltWidth, bodyEndX, tAY + beltWidth); // bottom
-  doc.line(bodyEndX, tAY, bodyEndX, tAY + beltWidth); // right end
 
-  // Draw end shape on top (filled + stroked, overlaps body slightly for seamless join)
-  doc.setFillColor(245, 242, 235);
-  doc.setDrawColor(0);
-  doc.setLineWidth(0.02);
-  drawEndShapeOnPDF(doc, order.design.endShape, tAX, tAY, beltWidth, 'FD');
+  // Fill the entire area (shape + body) without internal edges
+  drawEndShapeOnPDF(doc, order.design.endShape, tAX, tAY, beltWidth, 'F'); // fill only
+  doc.rect(tAX + shapeW - 0.03, tAY, bodyEndX - (tAX + shapeW - 0.03), beltWidth, 'F'); // fill only
+
+  // Stroke the outline: tip contour (open — no closing right edge)
+  drawEndShapeOnPDF(doc, order.design.endShape, tAX, tAY, beltWidth, 'S', false);
+  // Top and bottom edges continuing seamlessly to the right end
+  doc.line(tAX + shapeW, tAY, bodyEndX, tAY); // top
+  doc.line(tAX + shapeW, tAY + beltWidth, bodyEndX, tAY + beltWidth); // bottom
+  // Right end (dashed to indicate belt continues)
+  doc.setLineDashPattern([0.1, 0.08], 0);
+  doc.line(bodyEndX, tAY, bodyEndX, tAY + beltWidth);
+  doc.setLineDashPattern([], 0);
 
   // Center line
   doc.setDrawColor(150, 150, 200);
@@ -572,46 +573,30 @@ function drawPage2(
     const buckleTemplateLen = templateRatio * beltWidth;
     const centerX = tBX + buckleTemplateLen / 2;
 
-    // Draw LEFT side
+    // Draw unified belt piece — fill everything first, then stroke edges
     doc.setFillColor(245, 242, 235);
     doc.setDrawColor(0);
     doc.setLineWidth(0.02);
-    let leftShapeRightX: number;
+    const tBShapeW = 105 * (beltWidth / SVG_VIEW_H);
 
     if (isIntegrated) {
-      // Integrated: left side is a straight dashed edge (no cut)
-      // Draw body fill from left edge
-      leftShapeRightX = tBX;
-      // Draw the filled body rectangle for the full template
+      // Fill: full rectangle + right end shape
       doc.rect(tBX, tBY, buckleTemplateLen, beltWidth, 'F');
+      drawEndShapeMirroredOnPDF(doc, order.design.endShape, tBX + buckleTemplateLen, tBY, beltWidth, 'F');
 
-      // Left edge — dashed to indicate "do not cut here"
+      // Stroke: dashed left edge (do not cut)
       doc.setDrawColor(120);
-      doc.setLineWidth(0.02);
       doc.setLineDashPattern([0.1, 0.08], 0);
       doc.line(tBX, tBY, tBX, tBY + beltWidth);
       doc.setLineDashPattern([], 0);
 
-      // Top and bottom edges from left to right shape
+      // Stroke: top and bottom edges
       doc.setDrawColor(0);
-      doc.setLineWidth(0.02);
-    } else {
-      // Additional: draw left end shape
-      leftShapeRightX = drawEndShapeOnPDF(doc, order.design.endShape, tBX, tBY, beltWidth, 'FD');
-    }
+      doc.line(tBX, tBY, tBX + buckleTemplateLen - tBShapeW, tBY); // top
+      doc.line(tBX, tBY + beltWidth, tBX + buckleTemplateLen - tBShapeW, tBY + beltWidth); // bottom
 
-    // Draw RIGHT end shape (mirrored)
-    doc.setFillColor(245, 242, 235);
-    doc.setDrawColor(0);
-    doc.setLineWidth(0.02);
-    const rightShapeLeftX = drawEndShapeMirroredOnPDF(doc, order.design.endShape, tBX + buckleTemplateLen, tBY, beltWidth, 'FD');
-
-    if (isIntegrated) {
-      // Draw solid top/bottom edges and outline the body rect (excluding dashed left edge)
-      doc.setDrawColor(0);
-      doc.setLineWidth(0.02);
-      doc.line(tBX, tBY, rightShapeLeftX + 0.03, tBY); // top edge
-      doc.line(tBX, tBY + beltWidth, rightShapeLeftX + 0.03, tBY + beltWidth); // bottom edge
+      // Stroke: right end shape contour (open — no closing left edge)
+      drawEndShapeMirroredOnPDF(doc, order.design.endShape, tBX + buckleTemplateLen, tBY, beltWidth, 'S', false);
 
       // Label the dashed left edge
       doc.setFontSize(5);
@@ -620,16 +605,18 @@ function drawPage2(
       doc.text('(do not cut)', tBX - 0.18, tBY + beltWidth / 2, { align: 'right', angle: 90 });
       doc.setTextColor(0);
     } else {
-      // Additional: body fill connecting the two end shapes (no vertical edges at joins)
-      doc.setFillColor(245, 242, 235);
-      doc.setDrawColor(0);
-      doc.setLineWidth(0.02);
-      const bodyLeft = leftShapeRightX - 0.03;
-      const bodyRight = rightShapeLeftX + 0.03;
-      doc.rect(bodyLeft, tBY, bodyRight - bodyLeft, beltWidth, 'F'); // fill only
-      // Stroke only top and bottom edges
-      doc.line(bodyLeft, tBY, bodyRight, tBY); // top
-      doc.line(bodyLeft, tBY + beltWidth, bodyRight, tBY + beltWidth); // bottom
+      // Fill: both end shapes + body rectangle
+      drawEndShapeOnPDF(doc, order.design.endShape, tBX, tBY, beltWidth, 'F');
+      drawEndShapeMirroredOnPDF(doc, order.design.endShape, tBX + buckleTemplateLen, tBY, beltWidth, 'F');
+      doc.rect(tBX + tBShapeW - 0.03, tBY, buckleTemplateLen - 2 * tBShapeW + 0.06, beltWidth, 'F');
+
+      // Stroke: left shape contour (open — no closing right edge)
+      drawEndShapeOnPDF(doc, order.design.endShape, tBX, tBY, beltWidth, 'S', false);
+      // Stroke: right shape contour (open — no closing left edge)
+      drawEndShapeMirroredOnPDF(doc, order.design.endShape, tBX + buckleTemplateLen, tBY, beltWidth, 'S', false);
+      // Stroke: top and bottom edges connecting the two shapes
+      doc.line(tBX + tBShapeW, tBY, tBX + buckleTemplateLen - tBShapeW, tBY); // top
+      doc.line(tBX + tBShapeW, tBY + beltWidth, tBX + buckleTemplateLen - tBShapeW, tBY + beltWidth); // bottom
     }
 
     // Center line

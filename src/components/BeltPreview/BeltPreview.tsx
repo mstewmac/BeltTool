@@ -98,7 +98,7 @@ export default function BeltPreview({ design }: Props) {
               </clipPath>
             </defs>
 
-            {/* Belt body with leather texture */}
+            {/* Belt body with leather texture, clipped to unified shape */}
             <g filter="url(#beltShadow)">
               <g clipPath="url(#beltClip)">
                 <rect
@@ -111,18 +111,18 @@ export default function BeltPreview({ design }: Props) {
               </g>
             </g>
 
-            {/* Belt outline using the end shape path */}
-            <g transform={`translate(${beltX}, ${beltY}) scale(${tipW / 105}, ${beltH / 78})`}>
-              <path
-                d={END_SHAPE_PATHS[design.endShape]}
+            {/* Single unified outline: tip shape flows into body, no seam */}
+            <g clipPath="url(#beltClip)">
+              <rect
+                x={beltX}
+                y={beltY}
+                width={beltW}
+                height={beltH}
                 fill="none"
                 stroke="rgba(0,0,0,0.2)"
-                strokeWidth="1.5"
+                strokeWidth="2"
               />
             </g>
-            {/* Top and bottom edges of belt body */}
-            <line x1={beltX + tipW - 5} y1={beltY} x2={beltX + beltW} y2={beltY} stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
-            <line x1={beltX + tipW - 5} y1={beltY + beltH} x2={beltX + beltW} y2={beltY + beltH} stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
 
             {/* Stitching lines */}
             <line
