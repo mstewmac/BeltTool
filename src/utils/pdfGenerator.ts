@@ -14,11 +14,20 @@ import {
 // ================================================================
 // SVG PATH DATA (same as BeltPreview, ~105x78 viewBox)
 // ================================================================
+// Full closed paths (for fills and clip paths)
 const END_SHAPE_PATHS: Record<string, string> = {
   round: 'M104.26,77.17l-73.96-1.28c-9.23-.16-17.3-7.14-22.49-14.38C-.94,49.29-1.08,33.37,6.38,20.45,13.32,8.43,26.22.96,41.34,1l62.92.17v76Z',
   square: 'M104.11,77l-91.5-.09c-6.14,0-10.67-4.95-10.93-10.93-.86-19.06-.88-37.76-.15-56.99.14-3.61,1.8-7.75,6.06-7.76l96.52-.24v76Z',
   'square-taper': 'M104,76.36c-11.68,1.54-24,1.02-36.18-1.68l-57.94-12.83c-5.3-1.17-8.24-5.32-8.43-10.44-.35-9.91-.66-18.88-.28-28.92.1-2.76,4.88-6.01,7.69-6.69C29.11,10.96,48.52,5.97,69.1,2.39c11.78-2.05,23.56-1.3,34.9-1.03v75Z',
   spear: 'M104.16,76.02h-33.6c-6.8,0-13.56-.95-20.09-2.83l-8.69-2.51C30.97,67.57,1.03,52.37,1,41.5c0-3,1.44-6.49,3.85-8.83C21.78,16.21,42.71,5.78,66.14,1.88l38.03-.86v75Z',
+};
+
+// Open paths (no closing right vertical edge) — for outline strokes only
+const END_SHAPE_OUTLINE_PATHS: Record<string, string> = {
+  round: 'M104.26,77.17l-73.96-1.28c-9.23-.16-17.3-7.14-22.49-14.38C-.94,49.29-1.08,33.37,6.38,20.45,13.32,8.43,26.22.96,41.34,1l62.92.17',
+  square: 'M104.11,77l-91.5-.09c-6.14,0-10.67-4.95-10.93-10.93-.86-19.06-.88-37.76-.15-56.99.14-3.61,1.8-7.75,6.06-7.76l96.52-.24',
+  'square-taper': 'M104,76.36c-11.68,1.54-24,1.02-36.18-1.68l-57.94-12.83c-5.3-1.17-8.24-5.32-8.43-10.44-.35-9.91-.66-18.88-.28-28.92.1-2.76,4.88-6.01,7.69-6.69C29.11,10.96,48.52,5.97,69.1,2.39c11.78-2.05,23.56-1.3,34.9-1.03',
+  spear: 'M104.16,76.02h-33.6c-6.8,0-13.56-.95-20.09-2.83l-8.69-2.51C30.97,67.57,1.03,52.37,1,41.5c0-3,1.44-6.49,3.85-8.83C21.78,16.21,42.71,5.78,66.14,1.88l38.03-.86',
 };
 
 const SVG_VIEW_H = 78;
@@ -146,11 +155,15 @@ function parseSVGPathForPDF(
  * Draw an end shape on the PDF using the actual SVG path data.
  * Returns the rightmost x coordinate of the drawn shape.
  */
+/**
+ * Draw an end shape on the PDF.
+ * outline=true uses the open path (no right vertical edge) for seamless strokes.
+ */
 function drawEndShapeOnPDF(
   doc: jsPDF, shape: string, x: number, y: number,
-  beltWidth: number, style: string = 'FD', closed: boolean = true,
+  beltWidth: number, style: string = 'FD', outline: boolean = false,
 ): number {
-  const pathData = END_SHAPE_PATHS[shape];
+  const pathData = outline ? END_SHAPE_OUTLINE_PATHS[shape] : END_SHAPE_PATHS[shape];
   if (!pathData) return x;
 
   const scale = beltWidth / SVG_VIEW_H;
@@ -158,42 +171,37 @@ function drawEndShapeOnPDF(
 
   if (path.segments.length < 2) return x;
 
-  doc.lines(path.segments, path.startX, path.startY, [1, 1], style, closed);
+  doc.lines(path.segments, path.startX, path.startY, [1, 1], style, !outline);
 
-  // Calculate rightmost x from the path
   const shapeWidth = 105 * scale;
   return x + shapeWidth;
 }
 
 /**
  * Draw a MIRRORED end shape (tip pointing right).
- * rightEdgeX is where the rightmost point (tip) of the mirrored shape sits.
- * Returns the leftmost x (body connection side).
+ * outline=true uses the open path (no left vertical edge) for seamless strokes.
  */
 function drawEndShapeMirroredOnPDF(
   doc: jsPDF, shape: string, rightEdgeX: number, y: number,
-  beltWidth: number, style: string = 'FD', closed: boolean = true,
+  beltWidth: number, style: string = 'FD', outline: boolean = false,
 ): number {
-  const pathData = END_SHAPE_PATHS[shape];
+  const pathData = outline ? END_SHAPE_OUTLINE_PATHS[shape] : END_SHAPE_PATHS[shape];
   if (!pathData) return rightEdgeX;
 
   const scale = beltWidth / SVG_VIEW_H;
   const shapeWidth = 105 * scale;
 
-  // Parse with ox=0 so startX = svgStartX * scale
   const path = parseSVGPathForPDF(pathData, scale, 0, y);
   if (path.segments.length < 2) return rightEdgeX;
 
-  // Mirror: startX maps to rightEdgeX - startX
   const mirroredStartX = rightEdgeX - path.startX;
 
-  // Negate x components of all segments
   const mirroredSegs: Seg[] = path.segments.map(seg => {
     if (seg.length === 2) return [-seg[0], seg[1]] as Seg;
     return [-seg[0], seg[1], -seg[2], seg[3], -seg[4], seg[5]] as Seg;
   });
 
-  doc.lines(mirroredSegs, mirroredStartX, path.startY, [1, 1], style, closed);
+  doc.lines(mirroredSegs, mirroredStartX, path.startY, [1, 1], style, !outline);
 
   return rightEdgeX - shapeWidth;
 }
@@ -500,8 +508,8 @@ function drawPage2(
   drawEndShapeOnPDF(doc, order.design.endShape, tAX, tAY, beltWidth, 'F'); // fill only
   doc.rect(tAX + shapeW - 0.03, tAY, bodyEndX - (tAX + shapeW - 0.03), beltWidth, 'F'); // fill only
 
-  // Stroke the outline: tip contour (open — no closing right edge)
-  drawEndShapeOnPDF(doc, order.design.endShape, tAX, tAY, beltWidth, 'S', false);
+  // Stroke the outline: tip contour (outline=true — no closing right edge)
+  drawEndShapeOnPDF(doc, order.design.endShape, tAX, tAY, beltWidth, 'S', true);
   // Top and bottom edges continuing seamlessly to the right end
   doc.line(tAX + shapeW, tAY, bodyEndX, tAY); // top
   doc.line(tAX + shapeW, tAY + beltWidth, bodyEndX, tAY + beltWidth); // bottom
@@ -595,8 +603,8 @@ function drawPage2(
       doc.line(tBX, tBY, tBX + buckleTemplateLen - tBShapeW, tBY); // top
       doc.line(tBX, tBY + beltWidth, tBX + buckleTemplateLen - tBShapeW, tBY + beltWidth); // bottom
 
-      // Stroke: right end shape contour (open — no closing left edge)
-      drawEndShapeMirroredOnPDF(doc, order.design.endShape, tBX + buckleTemplateLen, tBY, beltWidth, 'S', false);
+      // Stroke: right end shape contour (outline=true — no closing left edge)
+      drawEndShapeMirroredOnPDF(doc, order.design.endShape, tBX + buckleTemplateLen, tBY, beltWidth, 'S', true);
 
       // Label the dashed left edge
       doc.setFontSize(5);
@@ -610,10 +618,10 @@ function drawPage2(
       drawEndShapeMirroredOnPDF(doc, order.design.endShape, tBX + buckleTemplateLen, tBY, beltWidth, 'F');
       doc.rect(tBX + tBShapeW - 0.03, tBY, buckleTemplateLen - 2 * tBShapeW + 0.06, beltWidth, 'F');
 
-      // Stroke: left shape contour (open — no closing right edge)
-      drawEndShapeOnPDF(doc, order.design.endShape, tBX, tBY, beltWidth, 'S', false);
-      // Stroke: right shape contour (open — no closing left edge)
-      drawEndShapeMirroredOnPDF(doc, order.design.endShape, tBX + buckleTemplateLen, tBY, beltWidth, 'S', false);
+      // Stroke: left shape contour (outline=true — no closing right edge)
+      drawEndShapeOnPDF(doc, order.design.endShape, tBX, tBY, beltWidth, 'S', true);
+      // Stroke: right shape contour (outline=true — no closing left edge)
+      drawEndShapeMirroredOnPDF(doc, order.design.endShape, tBX + buckleTemplateLen, tBY, beltWidth, 'S', true);
       // Stroke: top and bottom edges connecting the two shapes
       doc.line(tBX + tBShapeW, tBY, tBX + buckleTemplateLen - tBShapeW, tBY); // top
       doc.line(tBX + tBShapeW, tBY + beltWidth, tBX + buckleTemplateLen - tBShapeW, tBY + beltWidth); // bottom
