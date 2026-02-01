@@ -1,0 +1,323 @@
+/* ============================================
+   BELT DESIGNER - Main Layout (Light Theme)
+   ============================================ */
+
+.app {
+  min-height: 100vh;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Top Bar */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: 0.02em;
+}
+
+.logoSub {
+  font-weight: 400;
+  color: #999999;
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.topActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.iconBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  color: #444444;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.iconBtn:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.iconBtn:active {
+  background: #eeeeee;
+  transform: scale(0.97);
+}
+
+/* Hero Section: Customer + Waist */
+.heroSection {
+  background: #f9f9f9;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 1.5rem 2rem;
+}
+
+.heroInner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+}
+
+.heroRight {
+  display: flex;
+  align-items: stretch;
+}
+
+.measurementCards {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.waistBadge {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #fff;
+  background: #bbb;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
+.waistCard {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.waistLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #999;
+  margin-bottom: 0.75rem;
+}
+
+.waistRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.waistBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  color: #333;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.waistBtn:hover {
+  background: #f0f0f0;
+}
+
+.waistBtn:active {
+  background: #e8e8e8;
+  transform: scale(0.95);
+}
+
+.waistInput {
+  flex: 1;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+.waistUnit {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.waistNote {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: #999;
+  text-align: center;
+}
+
+/* Main Layout */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Left column */
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Right column */
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: #ddd transparent;
+}
+
+.rightCol::-webkit-scrollbar {
+  width: 5px;
+}
+
+.rightCol::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 3px;
+}
+
+/* Generate PDF Button */
+.generateBtn {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  background: #1a1a1a;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.generateBtn:hover {
+  background: #333333;
+}
+
+.generateBtn:active {
+  transform: scale(0.98);
+}
+
+.generateBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #999;
+}
+
+.resetBtn {
+  width: 100%;
+  padding: 0.65rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: transparent;
+  color: #999999;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.resetBtn:hover {
+  background: #f9f9f9;
+  color: #666;
+}
+
+.resetBtn:active {
+  background: #f0f0f0;
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 200;
+  animation: toastIn 0.2s, toastOut 0.3s 2.5s forwards;
+  pointer-events: none;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .heroSection {
+    padding: 1rem;
+  }
+
+  .main {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .rightCol {
+    max-height: none;
+    overflow: visible;
+  }
+}

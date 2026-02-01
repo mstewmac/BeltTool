@@ -1,0 +1,67 @@
+.wrapper {
+  position: sticky;
+  top: 5rem;
+}
+
+.previewCard {
+  background: #f9f9f9;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #999;
+  margin-bottom: 1rem;
+}
+
+.svgContainer {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+}
+
+.svgContainer svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e8e8e8;
+}
+
+.specItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.specLabel {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #999;
+}
+
+.specValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.specHighlight {
+  font-size: 1.3rem;
+  color: #333;
+}
