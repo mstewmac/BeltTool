@@ -1,10 +1,9 @@
-import type { BeltDesign, BeltWidth, LeatherFinish, BeltStyle, BeltEndShape, BuckleAttachment } from '../../types';
+import type { BeltDesign, BeltWidth, BeltEndShape, BuckleAttachment, BuckleShape, BuckleMaterial } from '../../types';
 import {
   LEATHER_COLORS,
-  BUCKLE_OPTIONS,
+  BUCKLE_SHAPES,
+  BUCKLE_MATERIALS,
   WIDTH_OPTIONS,
-  FINISH_LABELS,
-  STYLE_LABELS,
   END_SHAPE_LABELS,
   BUCKLE_ATTACHMENT_LABELS,
 } from '../../constants';
@@ -59,36 +58,6 @@ export default function DesignControls({ design, onChange }: Props) {
         </div>
       </div>
 
-      {/* Leather Finish */}
-      <div className={s.section}>
-        <div className={s.sectionTitle}>Leather Finish</div>
-        <select
-          className={s.select}
-          value={design.finish}
-          onChange={e => set('finish', e.target.value as LeatherFinish)}
-        >
-          {Object.entries(FINISH_LABELS).map(([val, label]) => (
-            <option key={val} value={val}>{label}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Belt Style */}
-      <div className={s.section}>
-        <div className={s.sectionTitle}>Belt Style</div>
-        <div className={s.toggleGroup}>
-          {Object.entries(STYLE_LABELS).map(([val, label]) => (
-            <button
-              key={val}
-              className={`${s.toggleBtn} ${design.style === val ? s.toggleBtnActive : ''}`}
-              onClick={() => set('style', val as BeltStyle)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Belt End Shape */}
       <div className={s.section}>
         <div className={s.sectionTitle}>Belt End Shape</div>
@@ -105,24 +74,39 @@ export default function DesignControls({ design, onChange }: Props) {
         </div>
       </div>
 
-      {/* Buckle Selection */}
+      {/* Buckle Shape */}
       <div className={s.section}>
-        <div className={s.sectionTitle}>Buckle</div>
+        <div className={s.sectionTitle}>Buckle Shape</div>
         <div className={s.buckleGrid}>
-          {BUCKLE_OPTIONS.map(b => (
+          {BUCKLE_SHAPES.map(shape => (
             <button
-              key={b.id}
-              className={`${s.buckleCard} ${design.buckleId === b.id ? s.buckleCardActive : ''}`}
-              onClick={() => set('buckleId', b.id)}
+              key={shape.id}
+              className={`${s.buckleCard} ${design.buckleShape === shape.id ? s.buckleCardActive : ''}`}
+              onClick={() => set('buckleShape', shape.id as BuckleShape)}
             >
               <div className={s.buckleIcon}>
-                {b.image && <img src={b.image} alt={b.name} />}
+                {shape.image && <img src={shape.image} alt={shape.name} />}
               </div>
-              <div className={s.buckleName}>{b.name}</div>
-              <div className={s.buckleDesc}>{b.description}</div>
-              {b.priceModifier > 0 && (
-                <div className={s.bucklePrice}>+${b.priceModifier}</div>
-              )}
+              <div className={s.buckleName}>{shape.name}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Buckle Material */}
+      <div className={s.section}>
+        <div className={s.sectionTitle}>Buckle Material</div>
+        <div className={s.buckleGrid}>
+          {BUCKLE_MATERIALS.map(material => (
+            <button
+              key={material.id}
+              className={`${s.buckleCard} ${design.buckleMaterial === material.id ? s.buckleCardActive : ''}`}
+              onClick={() => set('buckleMaterial', material.id as BuckleMaterial)}
+            >
+              <div className={s.buckleIcon}>
+                {material.image && <img src={material.image} alt={material.name} />}
+              </div>
+              <div className={s.buckleName}>{material.name}</div>
             </button>
           ))}
         </div>

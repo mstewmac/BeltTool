@@ -1,12 +1,10 @@
 import { useState, useCallback } from 'react';
 import type { BeltDesign, CustomerDetails, BeltOrder } from './types';
 import { BELT_SPECS, BUSINESS_INFO, WAIST_MIN, WAIST_MAX } from './constants';
-import { calculatePrice } from './utils/pricing';
 import { generateOrderNumber, generateOrderId, formatDate, saveOrder } from './utils/orderUtils';
 import { generateOrderPDF } from './utils/pdfGenerator';
 import BeltPreview from './components/BeltPreview/BeltPreview';
 import DesignControls from './components/DesignControls/DesignControls';
-import PriceDisplay from './components/PriceDisplay/PriceDisplay';
 import CustomerInfo from './components/CustomerInfo/CustomerInfo';
 import OrderHistory from './components/OrderHistory/OrderHistory';
 import s from './App.module.css';
@@ -15,10 +13,9 @@ const DEFAULT_DESIGN: BeltDesign = {
   waistSize: 34,
   width: 1.5,
   colorId: 'light-brown',
-  finish: 'smooth',
-  style: 'casual',
   endShape: 'round',
-  buckleId: 'square-brass',
+  buckleShape: 'square',
+  buckleMaterial: 'antique-brass',
   buckleAttachment: 'additional',
 };
 
@@ -42,7 +39,6 @@ export default function App() {
 
   const integratedExtra = design.buckleAttachment === 'integrated' ? BELT_SPECS.integratedFoldBack : 0;
   const totalLength = design.waistSize + BELT_SPECS.buckleAllowance + BELT_SPECS.holeAllowance + integratedExtra;
-  const price = calculatePrice(design);
 
   const handleGeneratePDF = () => {
     const order: BeltOrder = {
@@ -52,7 +48,6 @@ export default function App() {
       design,
       customer,
       totalLength,
-      price: price.total,
     };
 
     saveOrder(order);
@@ -171,7 +166,6 @@ export default function App() {
         <div className={s.leftCol}>
           <BeltPreview design={design} />
           <div className={s.desktopActions}>
-            <PriceDisplay design={design} />
             <button
               className={s.generateBtn}
               onClick={handleGeneratePDF}
@@ -191,7 +185,6 @@ export default function App() {
       </main>
 
       <div className={s.bottomActions}>
-        <PriceDisplay design={design} />
         <button
           className={s.generateBtn}
           onClick={handleGeneratePDF}

@@ -1,5 +1,5 @@
 import type { BeltDesign } from '../../types';
-import { LEATHER_COLORS, BUCKLE_OPTIONS, BELT_SPECS, FINISH_LABELS, STYLE_LABELS, END_SHAPE_LABELS, BUCKLE_ATTACHMENT_LABELS } from '../../constants';
+import { LEATHER_COLORS, BUCKLE_SHAPES, BUCKLE_MATERIALS, BELT_SPECS, END_SHAPE_LABELS, BUCKLE_ATTACHMENT_LABELS } from '../../constants';
 import s from './BeltPreview.module.css';
 
 interface Props {
@@ -26,7 +26,8 @@ const END_SHAPE_OUTLINE_PATHS: Record<string, string> = {
 
 export default function BeltPreview({ design }: Props) {
   const color = LEATHER_COLORS.find(c => c.id === design.colorId)!;
-  const buckle = BUCKLE_OPTIONS.find(b => b.id === design.buckleId)!;
+  const buckleShape = BUCKLE_SHAPES.find(s => s.id === design.buckleShape)!;
+  const buckleMaterial = BUCKLE_MATERIALS.find(m => m.id === design.buckleMaterial)!;
   const integratedExtra = design.buckleAttachment === 'integrated' ? BELT_SPECS.integratedFoldBack : 0;
   const totalLength = design.waistSize + BELT_SPECS.buckleAllowance + BELT_SPECS.holeAllowance + integratedExtra;
 
@@ -180,7 +181,7 @@ export default function BeltPreview({ design }: Props) {
             />
 
             {/* Buckle shape */}
-            {buckle.shape === 'square' ? (
+            {buckleShape.id === 'square' ? (
               <g>
                 <rect
                   x={buckleEndX - 2}
@@ -256,12 +257,8 @@ export default function BeltPreview({ design }: Props) {
             <span className={s.specValue}>{design.width}&Prime;</span>
           </div>
           <div className={s.specItem}>
-            <span className={s.specLabel}>Color &amp; Finish</span>
-            <span className={s.specValue}>{color.name} / {FINISH_LABELS[design.finish]}</span>
-          </div>
-          <div className={s.specItem}>
-            <span className={s.specLabel}>Style</span>
-            <span className={s.specValue}>{STYLE_LABELS[design.style]}</span>
+            <span className={s.specLabel}>Color</span>
+            <span className={s.specValue}>{color.name}</span>
           </div>
           <div className={s.specItem}>
             <span className={s.specLabel}>End Shape</span>
@@ -269,7 +266,7 @@ export default function BeltPreview({ design }: Props) {
           </div>
           <div className={s.specItem}>
             <span className={s.specLabel}>Buckle</span>
-            <span className={s.specValue}>{buckle.name}</span>
+            <span className={s.specValue}>{buckleShape.name} / {buckleMaterial.name}</span>
           </div>
           <div className={s.specItem}>
             <span className={s.specLabel}>Attachment</span>

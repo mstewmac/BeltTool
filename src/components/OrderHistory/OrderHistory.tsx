@@ -1,5 +1,5 @@
 import type { BeltOrder } from '../../types';
-import { LEATHER_COLORS, BUCKLE_OPTIONS } from '../../constants';
+import { LEATHER_COLORS, BUCKLE_SHAPES, BUCKLE_MATERIALS } from '../../constants';
 import { loadOrders, deleteOrder } from '../../utils/orderUtils';
 import { useEffect, useState } from 'react';
 import s from './OrderHistory.module.css';
@@ -45,7 +45,8 @@ export default function OrderHistory({ open, onClose, onLoad, onDuplicate }: Pro
           ) : (
             orders.map(order => {
               const color = LEATHER_COLORS.find(c => c.id === order.design.colorId);
-              const buckle = BUCKLE_OPTIONS.find(b => b.id === order.design.buckleId);
+              const buckleShape = BUCKLE_SHAPES.find(s => s.id === order.design.buckleShape);
+              const buckleMaterial = BUCKLE_MATERIALS.find(m => m.id === order.design.buckleMaterial);
               return (
                 <div
                   key={order.id}
@@ -61,7 +62,7 @@ export default function OrderHistory({ open, onClose, onLoad, onDuplicate }: Pro
                   </div>
                   <div className={s.orderSpecs}>
                     {order.design.waistSize}&Prime; waist &middot; {order.design.width}&Prime; wide &middot;{' '}
-                    {color?.name} &middot; {buckle?.name} &middot; ${order.price}
+                    {color?.name} &middot; {buckleShape?.name} {buckleMaterial?.name}
                   </div>
                   <div className={s.orderActions}>
                     <button

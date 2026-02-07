@@ -1,8 +1,8 @@
-export type LeatherFinish = 'smooth' | 'textured' | 'distressed' | 'oiled' | 'suede';
-export type BeltStyle = 'casual' | 'dress' | 'work';
 export type BeltWidth = 1 | 1.25 | 1.5 | 1.75;
 export type BeltEndShape = 'round' | 'square' | 'square-taper' | 'spear';
 export type BuckleAttachment = 'additional' | 'integrated';
+export type BuckleShape = 'square' | 'round';
+export type BuckleMaterial = 'antique-brass' | 'gold-brass' | 'silver' | 'black';
 
 export interface LeatherColor {
   id: string;
@@ -12,14 +12,16 @@ export interface LeatherColor {
   image?: string; // path to leather texture image in /public/leather/
 }
 
-export interface BuckleOption {
-  id: string;
+export interface BuckleShapeOption {
+  id: BuckleShape;
   name: string;
-  description: string;
-  style: 'casual' | 'dress' | 'western' | 'work';
-  priceModifier: number;
-  image?: string; // path to image in /public/buckles/
-  shape: 'square' | 'round';
+  image?: string;
+}
+
+export interface BuckleMaterialOption {
+  id: BuckleMaterial;
+  name: string;
+  image?: string;
 }
 
 export interface BeltDesign {
@@ -27,10 +29,9 @@ export interface BeltDesign {
   actualWaistSize?: number;
   width: BeltWidth;
   colorId: string;
-  finish: LeatherFinish;
-  style: BeltStyle;
   endShape: BeltEndShape;
-  buckleId: string;
+  buckleShape: BuckleShape;
+  buckleMaterial: BuckleMaterial;
   buckleAttachment: BuckleAttachment;
 }
 
@@ -48,5 +49,4 @@ export interface BeltOrder {
   design: BeltDesign;
   customer: CustomerDetails;
   totalLength: number;
-  price: number;
 }

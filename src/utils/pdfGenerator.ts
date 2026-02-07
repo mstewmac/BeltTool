@@ -2,11 +2,10 @@ import jsPDF from 'jspdf';
 import type { BeltOrder } from '../types';
 import {
   LEATHER_COLORS,
-  BUCKLE_OPTIONS,
+  BUCKLE_SHAPES,
+  BUCKLE_MATERIALS,
   BELT_SPECS,
   BUSINESS_INFO,
-  FINISH_LABELS,
-  STYLE_LABELS,
   END_SHAPE_LABELS,
   BUCKLE_ATTACHMENT_LABELS,
 } from '../constants';
@@ -226,12 +225,13 @@ export function generateOrderPDF(order: BeltOrder): void {
   const doc = new jsPDF({ unit: 'in', format: [11, 17] });
 
   const color = LEATHER_COLORS.find(c => c.id === order.design.colorId)!;
-  const buckle = BUCKLE_OPTIONS.find(b => b.id === order.design.buckleId)!;
+  const buckleShape = BUCKLE_SHAPES.find(s => s.id === order.design.buckleShape)!;
+  const buckleMaterial = BUCKLE_MATERIALS.find(m => m.id === order.design.buckleMaterial)!;
 
-  drawPage1(doc, order, color, buckle);
+  drawPage1(doc, order, color, buckleShape.id, buckleMaterial.name);
 
   doc.addPage([17, 11], 'landscape');
-  drawPage2(doc, order, color, buckle);
+  drawPage2(doc, order, color, buckleShape.id, buckleMaterial.name);
 
   const safeName = order.customer.name.replace(/[^a-zA-Z0-9]/g, '') || 'Customer';
   const dateStr = new Date().toISOString().split('T')[0];
@@ -245,7 +245,8 @@ function drawPage1(
   doc: jsPDF,
   order: BeltOrder,
   color: { name: string; hex: string; darkHex: string },
-  buckle: { name: string; description: string; shape: string },
+  buckleShape: string,
+  buckleMaterial: string,
 ): void {
   const pageW = 11;
   const margin = 1;
@@ -312,10 +313,9 @@ function drawPage1(
     ['Total Belt Length', lengthBreakdown],
     ['Belt Width', `${order.design.width}"`],
     ['Leather Color', color.name],
-    ['Leather Finish', FINISH_LABELS[order.design.finish]],
-    ['Belt Style', STYLE_LABELS[order.design.style]],
     ['End Shape', END_SHAPE_LABELS[order.design.endShape]],
-    ['Buckle', `${buckle.name} — ${buckle.description}`],
+    ['Buckle Shape', buckleShape.charAt(0).toUpperCase() + buckleShape.slice(1)],
+    ['Buckle Material', buckleMaterial],
     ['Buckle Attachment', BUCKLE_ATTACHMENT_LABELS[order.design.buckleAttachment]],
     ['First Hole from Tip', `${BELT_SPECS.firstHoleFromTip}"`],
     ['Hole Spacing', `${BELT_SPECS.holeSpacing}" (${BELT_SPECS.holeCount} holes)`],
@@ -360,7 +360,7 @@ function drawPage1(
   doc.setFillColor(255, 255, 255);
   doc.setDrawColor(80);
   doc.setLineWidth(0.015);
-  if (buckle.shape === 'square') {
+  if (buckleShape === 'square') {
     doc.rect(buckleDrawX, buckleDrawY_val, buckleDrawW, buckleDrawH_val, 'FD');
   } else {
     doc.roundedRect(buckleDrawX, buckleDrawY_val, buckleDrawW, buckleDrawH_val, 0.12, 0.12, 'FD');
@@ -401,22 +401,6 @@ function drawPage1(
     y += lines.length * 0.2 + 0.5;
   }
 
-  // Pricing
-  sectionHeader(doc, 'Pricing', margin, y);
-  y += 0.4;
-  doc.setFontSize(24);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(0);
-  doc.text(`$${order.price}`, margin, y + 0.15);
-  y += 0.45;
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(100);
-  doc.text(`Deposit (${BUSINESS_INFO.depositPercent}%): $${Math.round(order.price * BUSINESS_INFO.depositPercent / 100)}`, margin, y);
-  y += 0.25;
-  doc.text(BUSINESS_INFO.paymentTerms, margin, y);
-  y += 0.45;
-
   // Lead Time
   doc.setTextColor(0);
   sectionHeader(doc, 'Estimated Completion', margin, y);
@@ -443,7 +427,8 @@ function drawPage2(
   doc: jsPDF,
   order: BeltOrder,
   color: { name: string; hex: string },
-  buckle: { name: string; description: string; shape: string },
+  buckleShape: string,
+  buckleMaterial: string,
 ): void {
   const pageW = 17;
   const pageH = 11;
@@ -459,7 +444,7 @@ function drawPage2(
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.text(`Order: ${order.orderNumber}  |  ${order.customer.name}  |  ${order.date}`, margin, margin + 0.45);
-  doc.text(`${color.name} ${FINISH_LABELS[order.design.finish]} | ${order.design.width}" wide | ${buckle.name}`, margin, margin + 0.65);
+  doc.text(`${color.name} | ${order.design.width}" wide | ${buckleShape.charAt(0).toUpperCase() + buckleShape.slice(1)} ${buckleMaterial}`, margin, margin + 0.65);
 
   // Scale warning
   doc.setFontSize(13);

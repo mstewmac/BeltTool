@@ -1,4 +1,4 @@
-import type { LeatherColor, BuckleOption } from './types';
+import type { LeatherColor, BuckleShapeOption, BuckleMaterialOption } from './types';
 
 // ============================================================
 // LEATHER COLORS
@@ -12,34 +12,17 @@ export const LEATHER_COLORS: LeatherColor[] = [
 // ============================================================
 // BUCKLE OPTIONS
 // ============================================================
-export const BUCKLE_OPTIONS: BuckleOption[] = [
-  { id: 'square-brass', name: 'Square Brass',  description: 'Solid brass square buckle', style: 'casual', priceModifier: 0,  image: '/buckles/Squarebuckle.webp', shape: 'square' },
-  { id: 'round-silver', name: 'Round Silver',  description: 'Silver round buckle',       style: 'dress',  priceModifier: 10, image: '/buckles/roundbuckle.webp',  shape: 'round' },
+export const BUCKLE_SHAPES: BuckleShapeOption[] = [
+  { id: 'square', name: 'Square', image: '/buckles/shapes/Square.webp' },
+  { id: 'round', name: 'Round', image: '/buckles/shapes/Round.webp' },
 ];
 
-// ============================================================
-// PRICING
-// ============================================================
-export const PRICING = {
-  basePrice: {
-    casual: 65,
-    dress: 85,
-    work: 75,
-  },
-  widthModifier: {
-    1: -5,
-    1.25: 0,
-    1.5: 5,
-    1.75: 10,
-  },
-  finishModifier: {
-    smooth: 0,
-    textured: 5,
-    distressed: 10,
-    oiled: 8,
-    suede: 12,
-  },
-};
+export const BUCKLE_MATERIALS: BuckleMaterialOption[] = [
+  { id: 'antique-brass', name: 'Antique Brass', image: '/buckles/materials/AntiqueBrass.webp' },
+  { id: 'gold-brass', name: 'Gold Brass', image: '/buckles/materials/GoldBrass.webp' },
+  { id: 'silver', name: 'Silver', image: '/buckles/materials/Silver.webp' },
+  { id: 'black', name: 'Black', image: '/buckles/materials/Black.webp' },
+];
 
 // ============================================================
 // BUSINESS INFO
@@ -74,20 +57,6 @@ export const BELT_SPECS = {
 // ============================================================
 // DISPLAY LABELS
 // ============================================================
-export const FINISH_LABELS: Record<string, string> = {
-  smooth: 'Smooth',
-  textured: 'Textured',
-  distressed: 'Distressed',
-  oiled: 'Oiled',
-  suede: 'Suede',
-};
-
-export const STYLE_LABELS: Record<string, string> = {
-  casual: 'Casual',
-  dress: 'Dress',
-  work: 'Work / Heavy-Duty',
-};
-
 export const END_SHAPE_LABELS: Record<string, string> = {
   round: 'Round',
   square: 'Square',
