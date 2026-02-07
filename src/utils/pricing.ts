@@ -9,7 +9,7 @@ export interface PriceBreakdown {
 }
 
 // Pricing functionality removed - this is kept for compatibility only
-export function calculatePrice(design: BeltDesign): PriceBreakdown {
+export function calculatePrice(_design: BeltDesign): PriceBreakdown {
   return {
     base: 0,
     widthUpcharge: 0,
